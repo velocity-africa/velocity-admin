@@ -14,6 +14,7 @@ import {
   Speed as SpeedIcon,
   Star as StarIcon,
   AccessTime as TimeIcon,
+  Visibility as ViewIcon
 } from "@mui/icons-material";
 import {
   Box,
@@ -31,6 +32,7 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import DocumentViewerDialog from "../components/DocumentViewerDialog";
 import { useAppDispatch } from "../hooks/useAppDispatch";
 import { useAppSelector } from "../hooks/useAppSelector";
 import type { RootState } from "../store";
@@ -85,6 +87,10 @@ export default function CarListingDetails() {
   const { id } = useParams<{ id: string }>();
   const dispatch = useAppDispatch();
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  const [selectedDocument, setSelectedDocument] = useState<{
+    url: string;
+    title: string;
+  } | null>(null);
 
   const { list: cars, isLoading } = useAppSelector(
     (state: RootState) => state.carListings
@@ -442,18 +448,16 @@ export default function CarListingDetails() {
                 >
                   Car Insurance
                 </Typography>
-                <Box
-                  component="img"
-                  src={car.carInsurance}
-                  alt="Car Insurance"
-                  sx={{
-                    width: "100%",
-                    maxHeight: 400,
-                    objectFit: "contain",
-                    borderRadius: 1,
-                    bgcolor: "background.default",
-                  }}
-                />
+                <Button
+                  variant="outlined"
+                  startIcon={<ViewIcon />}
+                  onClick={() => setSelectedDocument({
+                    url: car.carInsurance,
+                    title: "Car Insurance"
+                  })}
+                >
+                  View Document
+                </Button>
               </Box>
 
               <Box>
@@ -464,18 +468,17 @@ export default function CarListingDetails() {
                 >
                   Driver License
                 </Typography>
-                <Box
-                  component="img"
-                  src={car.driverLicense}
-                  alt="Driver License"
-                  sx={{
-                    width: "100%",
-                    maxHeight: 400,
-                    objectFit: "contain",
-                    borderRadius: 1,
-                    bgcolor: "background.default",
-                  }}
-                />
+                <Button
+                  variant="outlined"
+                  startIcon={<ViewIcon />}
+                  onClick={() => setSelectedDocument({
+                    url: (car as any).driverslicense || car.driverLicense,
+                    title: "Driver License"
+                  })}
+                  disabled={!(car as any).driverslicense && !car.driverLicense}
+                >
+                  View Document
+                </Button>
               </Box>
 
               <Box>
@@ -486,18 +489,16 @@ export default function CarListingDetails() {
                 >
                   Control Technique
                 </Typography>
-                <Box
-                  component="img"
-                  src={car.controlTechnique}
-                  alt="Control Technique"
-                  sx={{
-                    width: "100%",
-                    maxHeight: 400,
-                    objectFit: "contain",
-                    borderRadius: 1,
-                    bgcolor: "background.default",
-                  }}
-                />
+                <Button
+                  variant="outlined"
+                  startIcon={<ViewIcon />}
+                  onClick={() => setSelectedDocument({
+                    url: car.controlTechnique,
+                    title: "Control Technique"
+                  })}
+                >
+                  View Document
+                </Button>
               </Box>
             </Stack>
           </Paper>
@@ -642,6 +643,13 @@ export default function CarListingDetails() {
           </Paper>
         </Grid>
       </Grid>
+
+      <DocumentViewerDialog
+        open={selectedDocument !== null}
+        onClose={() => setSelectedDocument(null)}
+        documentUrl={selectedDocument?.url || ''}
+        title={selectedDocument?.title || ''}
+      />
     </Box>
   );
 }
